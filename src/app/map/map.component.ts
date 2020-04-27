@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GoogleMap, MapInfoWindow, MapMarker } from '@angular/google-maps';
+import { GenericGeoPointService } from '../service/generic-geo-point.service';
 
 @Component({
   selector: 'app-map',
@@ -10,7 +11,9 @@ export class MapComponent implements OnInit {
   @ViewChild(GoogleMap) map: GoogleMap;
   @ViewChild(MapInfoWindow) info: MapInfoWindow;
 
-  zoom = 12;
+  private iconBase = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+
+  zoom = 10;
   center: google.maps.LatLngLiteral;
   options: google.maps.MapOptions = {
     zoomControl: false,
@@ -23,29 +26,50 @@ export class MapComponent implements OnInit {
   markers = [];
   infoContent = '';
 
+  products = [];
+  constructor(private apiService: GenericGeoPointService) { }
+  
   ngOnInit() {
-
-    navigator.geolocation.getCurrentPosition(position => {
+    
+    
+      
+    navigator.geolocation.getCurrentPosition(position => {  
       this.center = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       }
+      this.apiService.fetchData().subscribe((data: any[])=>{  
+        console.log(data);  
+        this.products = data;  
+        this.getGeoData();
+      });
+      
+      
+    });
+  }
+
+  getGeoData(){
+    this.products.forEach(element => {
       this.markers.push({
         position: {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
+          lat: element.lat,
+          lng: element.lon,
         },
         label: {
           color: 'blue',
-          text: 'Marker label ' + (this.markers.length + 1),
+          text: element.name,
         },
-        title: 'Marker title ' + (this.markers.length + 1),
-        info: 'Marker info ' + (this.markers.length + 1),
+        title: 'Availability '+ element.available?'Yes':'No',
+        info: element.description,
         options: {
-          animation: google.maps.Animation.BOUNCE,
+          animation: google.maps.Animation.DROP,
         },
-      });
+        //icon: this.iconBase + 'parking_lot_maps.png'
+        icon: this.iconBase
+      });  
     });
+
+    
   }
 
   zoomIn() {

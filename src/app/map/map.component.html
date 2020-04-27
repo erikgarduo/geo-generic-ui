@@ -1,12 +1,13 @@
 <h1>Google Map</h1>
+
 <google-map
   height="500px"
   width="100%"
   [zoom]="zoom"
   [center]="center"
   [options]="options"
-  (mapClick)="click($event)"
->
+  (mapClick)="click($event)">
+  
   <map-marker
     #markerElem
     *ngFor="let marker of markers"
@@ -14,8 +15,8 @@
     [label]="marker.label"
     [title]="marker.title"
     [options]="marker.options"
-    (mapClick)="openInfo(markerElem, marker.info)"
-  >
+    [icon]="marker.icon"
+    (mapClick)="openInfo(markerElem, marker.info)">
   </map-marker>
 
   <map-info-window>{{ infoContent }}</map-info-window>
